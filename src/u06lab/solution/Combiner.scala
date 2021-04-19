@@ -39,8 +39,44 @@ trait Combiner[A] {
   def combine(a: A, b: A): A
 }
 
+object ImplicitCombiner {
+  implicit object sumCombiner extends Combiner[Double] {
+    override def unit = 0.0
+    override def combine(a: Double, b: Double): Double = a+b
+  }
+  implicit object concatCombiner extends Combiner[String] {
+    override def unit = ""
+    override def combine(a: String, b: String): String = a.concat(b)
+  }
+  implicit object maxCombiner extends Combiner[Int] {
+    override def unit = Int.MinValue
+    override def combine(a: Int, b: Int): Int = if (a<b) b else a
+  }
+}
+
+object FunctionsImplCombiner extends Functions {
+
+  import ImplicitCombiner._
+
+  override def sum(a: List[Double]): Double = combine(a)
+
+  override def concat(a: Seq[String]): String = combine(a)
+
+  override def max(a: List[Int]): Int = combine(a)
+
+  def combine[A:Combiner](a: Seq[A]): A = a.foldLeft(implicitly[Combiner[A]].unit)(implicitly[Combiner[A]].combine)
+}
+
 object TryFunctions extends App {
   val f: Functions = FunctionsImpl
+  println(f.sum(List(10.0,20.0,30.1))) // 60.1
+  println(f.sum(List()))                // 0.0
+  println(f.concat(Seq("a","b","c")))   // abc
+  println(f.concat(Seq()))              // ""
+  println(f.max(List(-10,3,-5,0)))      // 3
+  println(f.max(List()))                // -2147483648
+
+  val fComb: Functions = FunctionsImplCombiner
   println(f.sum(List(10.0,20.0,30.1))) // 60.1
   println(f.sum(List()))                // 0.0
   println(f.concat(Seq("a","b","c")))   // abc
