@@ -1,5 +1,7 @@
 package u06lab.solution
 
+import Implicits._
+
 /** Consider the Parser example shown in previous lesson.
  * Analogously to NonEmpty, create a mixin NotTwoConsecutive,
  * which adds the idea that one cannot parse two consecutive
@@ -56,6 +58,11 @@ trait NotTwoConsecutive[T] extends Parser[T] {
 
 class NotTwoConsecutiveParser(chars: Set[Char]) extends BasicParser(chars) with NotTwoConsecutive[Char]
 
+object Implicits {
+  implicit class StringFactory(s: String){
+    def charParser() : Parser[Char] = new BasicParser(s.toSet)
+  }
+}
 
 object TryParsers extends App {
   def parser = new BasicParser(Set('a', 'b', 'c'))
@@ -85,11 +92,11 @@ object TryParsers extends App {
   println(parserNTCNE.parseAll("XYYZ".toList)) // false
   println(parserNTCNE.parseAll("".toList)) // false
 
-  /*def sparser: Parser[Char] = "abc".charParser()
+  def sparser: Parser[Char] = "abc".charParser()
 
   println(sparser.parseAll("aabc".toList)) // true
   println(sparser.parseAll("aabcdc".toList)) // false
-  println(sparser.parseAll("".toList)) // true*/
+  println(sparser.parseAll("".toList)) // true
 }
 
 

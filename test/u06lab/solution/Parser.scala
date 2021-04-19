@@ -2,6 +2,8 @@ package u06lab.solution
 
 import org.junit.jupiter.api.Assertions._
 import org.junit.jupiter.api.{Assertions, Test}
+import Implicits._
+
 
 class ParserTests {
   def parser = new BasicParser(Set('a', 'b', 'c'))
@@ -11,7 +13,7 @@ class ParserTests {
   def parserNTC = new NotTwoConsecutiveParser(Set('X', 'Y', 'Z'))
   // note we do not need a class name here, we use the structural type
   def parserNTCNE = new BasicParser(Set('X', 'Y', 'Z')) with NotTwoConsecutive[Char] with NonEmpty[Char]
-  def sparser: Parser[Char] = ??? // "abc".charParser()
+  def sparser: Parser[Char] = "abc".charParser()
 
   @Test
   def testBasicParser = {
