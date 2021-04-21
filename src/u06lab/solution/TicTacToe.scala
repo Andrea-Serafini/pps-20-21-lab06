@@ -1,6 +1,6 @@
 package u06lab.solution
 
-object TicTacToe {
+object TicTacToe extends App {
   sealed trait Player{
     def other: Player = this match {case X => O; case _ => X}
     override def toString: String = this match {case X => "X"; case _ => "O"}
@@ -30,7 +30,14 @@ object TicTacToe {
     res
   }
 
-  def computeAnyGame(player: Player, moves: Int): Stream[Game] = ???
+  def computeAnyGame(player: Player, moves: Int): Stream[Game] = moves match {
+    case 0 => Stream(List(Nil))
+    case _ => for {
+      games <- computeAnyGame (player.other,moves -1)
+      game  <- placeAnyMark(games.head, player)
+      //if ( isSafe ( queen , queens ))
+    } yield game :: games
+  }
 
   def printBoards(game: Seq[Board]): Unit =
     for (y <- 0 to 2; board <- game.reverse; x <- 0 to 2) {
@@ -54,7 +61,9 @@ object TicTacToe {
   //..X ... ... .X. ... ... X.. ...
 
   // Exercise 3 (ADVANCED!): implement computeAnyGame such that..
-  computeAnyGame(O, 4) foreach {g => printBoards(g); println()}
+  println("COMPUTE ANY GAME")
+  var i: Int = 1
+  computeAnyGame(O, 4) foreach {g =>  println("Game n.  " +i); i = i.+(1); printBoards(g); println()}
   //... X.. X.. X.. XO.
   //... ... O.. O.. O..
   //... ... ... X.. X..
