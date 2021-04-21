@@ -15,10 +15,12 @@ object TicTacToe extends App {
   def find(board: Board, x: Int, y: Int): Option[Player] = {
     var res = Option.empty[Player]
     board.foreach(a => {
-      if (a.x == x && a.y == y) res = Option(a.player)
+      if (isOccupied(a, x, y)) res = Option(a.player)
     })
     res
   }
+
+  def isOccupied(a: Mark, x: Int, y: Int): Boolean = a.x == x && a.y == y
 
   def placeAnyMark(board: Board, player: Player): Seq[Board] = {
     var res: Seq[Board] = Seq.empty
@@ -35,8 +37,53 @@ object TicTacToe extends App {
     case _ => for {
       games <- computeAnyGame (player.other,moves -1)
       game  <- placeAnyMark(games.head, player)
-      //if ( isSafe ( queen , queens ))
-    } yield game :: games
+    } yield if (isEnded(games.head)) games else game :: games
+  }
+
+  def isEnded(game: Board): Boolean = {
+    if (game.size < 5) false
+    else {
+      checkLines(game) || checkColumns(game) || checkDiagonals(game)
+    }
+  }
+
+  def checkColumns(b: Board): Boolean = {
+    var res = false
+    for (y <- 0 to 2){
+      var line = b.filter(m => m.x == y).partition(m => m.player.toString == "X")
+      if (line._1.size == 3 || line._2.size == 3 ) {
+        res = true
+        //print("|")
+      }
+    }
+    res
+  }
+
+  def checkLines(b: Board): Boolean = {
+    var res = false
+    for (y <- 0 to 2){
+      var line = b.filter(m => m.y == y).partition(m => m.player.toString == "X")
+      if (line._1.size == 3 || line._2.size == 3 ) {
+        res = true
+        //print("-")
+      }
+    }
+    res
+  }
+
+  def checkDiagonals(b: Board): Boolean = {
+    var res = false
+    var line = b.filter(m => m.y == m.x).partition(m => m.player.toString == "X")
+    if (line._1.size == 3 || line._2.size == 3 ) {
+      res = true
+      //print("\\")
+    }
+    var line2 = b.filter(m => (m.y +m.x) == 2).partition(m => m.player.toString == "X")
+    if (line2._1.size == 3 || line2._2.size == 3 ) {
+      res = true
+      //print("/")
+    }
+    res
   }
 
   def printBoards(game: Seq[Board]): Unit =
@@ -62,8 +109,8 @@ object TicTacToe extends App {
 
   // Exercise 3 (ADVANCED!): implement computeAnyGame such that..
   println("COMPUTE ANY GAME")
-  var i: Int = 1
-  computeAnyGame(O, 4) foreach {g =>  println("Game n.  " +i); i = i.+(1); printBoards(g); println()}
+  var i: Int = 0
+  computeAnyGame(O, 4) foreach {g => i = i+1;println("Game n.  " +i); printBoards(g); println()}
   //... X.. X.. X.. XO.
   //... ... O.. O.. O..
   //... ... ... X.. X..
@@ -74,4 +121,7 @@ object TicTacToe extends App {
   //... .X. .X. .X. .X.
 
   // Exercise 4 (VERY ADVANCED!) -- modify the above one so as to stop each game when someone won!!
+  i = 0
+  computeAnyGame(O, 6) foreach {g =>   i = i+1; if(g.size<=6) {println("Game n.  " +i + ", won in " +(g.size-1)+" moves"); printBoards(g); println()}}
+
 }
