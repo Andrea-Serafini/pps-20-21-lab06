@@ -20,7 +20,15 @@ object TicTacToe {
     res
   }
 
-  def placeAnyMark(board: Board, player: Player): Seq[Board] = ???
+  def placeAnyMark(board: Board, player: Player): Seq[Board] = {
+    var res: Seq[Board] = Seq.empty
+    for (x <- 0 to 2; y <- 0 to 2) {
+      if (find(board, x, y).isEmpty) {
+        res = res :+ (board :+ Mark(x, y, player))
+      }
+    }
+    res
+  }
 
   def computeAnyGame(player: Player, moves: Int): Stream[Game] = ???
 
