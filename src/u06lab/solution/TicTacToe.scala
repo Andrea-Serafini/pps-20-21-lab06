@@ -12,7 +12,13 @@ object TicTacToe {
   type Board = List[Mark]
   type Game = List[Board]
 
-  def find(board: Board, x: Int, y: Int): Option[Player] = ???
+  def find(board: Board, x: Int, y: Int): Option[Player] = {
+    var res = Option.empty[Player]
+    board.foreach(a => {
+      if (a.x == x && a.y == y) res = Option(a.player)
+    })
+    res
+  }
 
   def placeAnyMark(board: Board, player: Player): Seq[Board] = ???
 
