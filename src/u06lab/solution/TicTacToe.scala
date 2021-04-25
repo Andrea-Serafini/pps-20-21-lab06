@@ -12,13 +12,7 @@ object TicTacToe extends App {
   type Board = List[Mark]
   type Game = List[Board]
 
-  def find(board: Board, x: Int, y: Int): Option[Player] = {
-    var res = Option.empty[Player]
-    board.foreach(a => {
-      if (isOccupied(a, x, y)) res = Option(a.player)
-    })
-    res
-  }
+  def find(board: Board, x: Int, y: Int): Option[Player] = board.foldLeft(Option.empty[Player])((a,b)=>if (isOccupied(b, x, y)) Option(b.player) else a)
 
   def isOccupied(a: Mark, x: Int, y: Int): Boolean = a.x == x && a.y == y
 
@@ -43,47 +37,18 @@ object TicTacToe extends App {
   def isEnded(game: Board): Boolean = {
     if (game.size < 5) false
     else {
-      checkLines(game) || checkColumns(game) || checkDiagonals(game)
-    }
-  }
-
-  def checkColumns(b: Board): Boolean = {
-    var res = false
-    for (y <- 0 to 2){
-      var line = b.filter(m => m.x == y).partition(m => m.player.toString == "X")
-      if (line._1.size == 3 || line._2.size == 3 ) {
-        res = true
-        //print("|")
+      var res = false
+      for (y <- 0 to 2) {
+        res = res || check(game)(m => m.x == y) || check(game)(m => m.y == y)
       }
+      res || check(game)(m => m.y == m.x) || check(game)(m => (m.y +m.x) == 2)
     }
-    res
   }
 
-  def checkLines(b: Board): Boolean = {
-    var res = false
-    for (y <- 0 to 2){
-      var line = b.filter(m => m.y == y).partition(m => m.player.toString == "X")
-      if (line._1.size == 3 || line._2.size == 3 ) {
-        res = true
-        //print("-")
-      }
-    }
-    res
-  }
-
-  def checkDiagonals(b: Board): Boolean = {
-    var res = false
-    var line = b.filter(m => m.y == m.x).partition(m => m.player.toString == "X")
-    if (line._1.size == 3 || line._2.size == 3 ) {
-      res = true
-      //print("\\")
-    }
-    var line2 = b.filter(m => (m.y +m.x) == 2).partition(m => m.player.toString == "X")
-    if (line2._1.size == 3 || line2._2.size == 3 ) {
-      res = true
-      //print("/")
-    }
-    res
+  
+  def check(b: Board)(filter: Mark => Boolean): Boolean = {
+    val line = b.filter(filter).partition(m => m.player.toString == "X")
+    if (line._1.size == 3 || line._2.size == 3 ) true else false
   }
 
   def printBoards(game: Seq[Board]): Unit =
